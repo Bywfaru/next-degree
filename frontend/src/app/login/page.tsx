@@ -1,12 +1,12 @@
 'use server';
 
-import { RegisterForm } from '@/components/forms';
+import { LoginForm } from '@/components/forms';
 import clsx from 'clsx';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type FC } from 'react';
 
-const RegisterPage: FC = async () => {
+const LoginPage: FC = async () => {
   const cookieStore = await cookies();
 
   if (cookieStore.has('accessToken')) redirect('/degrees');
@@ -30,7 +30,7 @@ const RegisterPage: FC = async () => {
           'w-full',
           'p-5',
           'gap-4',
-          'lg:flex-row',
+          'lg:flex-row-reverse',
           'lg:gap-20',
         ])}
       >
@@ -51,19 +51,19 @@ const RegisterPage: FC = async () => {
               'lg:text-6xl',
             ])}
           >
-            Register
+            Login
           </h2>
 
           <p>
-            Create an account to track your degree progress, view your course
-            grade, and be reminded when your assignments are due.
+            Login to view your degree progress, course grades, and assignment
+            due dates.
           </p>
         </div>
 
-        <RegisterForm />
+        <LoginForm />
       </div>
     </main>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;

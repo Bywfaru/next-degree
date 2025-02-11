@@ -1,6 +1,6 @@
 'use client';
 
-import { registerUser } from '@/app/actions/users';
+import { loginUser } from '@/app/actions';
 import { Button, Input } from '@/components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
@@ -10,47 +10,32 @@ import { type FC, useState } from 'react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/g;
-const REGISTER_SCHEMA = z
-  .object({
-    email: z.string().email(),
-    password: z.string().regex(PASSWORD_REGEX, {
-      message:
-        'Password must contain at least one lowercase letter, one uppercase letter, one number, one special character, and be at least 8 characters long',
-    }),
-    confirmPassword: z.string(),
-  })
-  .superRefine(({ password, confirmPassword }, ctx) => {
-    if (password !== confirmPassword)
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-      });
-  });
+const LOGIN_SCHEMA = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
 
-type RegisterSchema = z.infer<typeof REGISTER_SCHEMA>;
+type LoginSchema = z.infer<typeof LOGIN_SCHEMA>;
 
-export const RegisterForm: FC = () => {
+export const LoginForm: FC = () => {
   const {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<RegisterSchema>({
-    resolver: zodResolver(REGISTER_SCHEMA),
+  } = useForm<LoginSchema>({
+    resolver: zodResolver(LOGIN_SCHEMA),
   });
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const processForm: SubmitHandler<RegisterSchema> = async ({
+  const processForm: SubmitHandler<LoginSchema> = async ({
     email,
     password,
   }) => {
     setIsLoading(true);
 
-    const response = await registerUser({ email, password });
+    const response = await loginUser({ email, password });
 
     if (response.success) return router.push('/degrees');
 
@@ -83,28 +68,18 @@ export const RegisterForm: FC = () => {
         fullWidth
       />
 
-      <Input
-        type="password"
-        register={register('confirmPassword')}
-        label="Confirm Password"
-        placeholder="Re-enter your password"
-        errors={errors}
-        disabled={isLoading}
-        fullWidth
-      />
-
       {!!formError && (
         <p className={clsx('text-red-500', 'text-center')}>{formError}</p>
       )}
 
       <Button type="submit" loading={isLoading}>
-        Register
+        Login
       </Button>
 
       <p className="text-center">
-        Have an account already?{' '}
+        Don&apos;t have an account?{' '}
         <Link
-          href="/login"
+          href="/register"
           className={clsx(
             'underline',
             'text-primary',
@@ -112,7 +87,7 @@ export const RegisterForm: FC = () => {
             'transition',
           )}
         >
-          Login here
+          Sign up here
         </Link>
       </p>
     </form>
