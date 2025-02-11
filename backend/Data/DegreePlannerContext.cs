@@ -1,20 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DegreePlanner.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using DegreePlanner.Entities;
 
-namespace DegreePlanner.Data
+namespace DegreePlanner.Data;
+
+public class DegreePlannerContext(DbContextOptions<DegreePlannerContext> options)
+    : IdentityDbContext<ApplicationUser>(options)
 {
-    public class DegreePlannerContext : DbContext
-    {
-        public DegreePlannerContext (DbContextOptions<DegreePlannerContext> options)
-            : base(options)
-        {
-        }
+    public DbSet<Assignment> Assignments => Set<Assignment>();
+    public DbSet<AssignmentCategory> AssignmentCategories => Set<AssignmentCategory>();
+    public DbSet<Course> Courses => Set<Course>();
+    public DbSet<Degree> Degrees => Set<Degree>();
+    public DbSet<DegreeCourse> DegreeCourses => Set<DegreeCourse>();
+    public DbSet<Prerequisite> Prerequisites => Set<Prerequisite>();
 
-        public DbSet<DegreePlanner.Entities.User> User { get; set; } = default!;
-        public DbSet<DegreePlanner.Entities.Course> Course { get; set; } = default!;
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Prerequisite>()
+            .HasOne(prerequisite => prerequisite.Course)
+            .WithMany(course => course.Prerequisites)
+            .HasForeignKey(prerequisite => prerequisite.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Prerequisite>()
+            .HasOne(prerequisite => prerequisite.PrerequisiteCourse)
+            .WithMany(course => course.CoursesRequiringThis)
+            .HasForeignKey(prerequisite => prerequisite.PrerequisiteCourseId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

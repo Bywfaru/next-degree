@@ -1,122 +1,153 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
 using DegreePlanner.Data;
 using DegreePlanner.Entities;
+using DegreePlanner.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace DegreePlanner.Controllers
+namespace DegreePlanner.Controllers;
+
+[Route("[controller]")]
+[ApiController]
+[Authorize]
+public class CoursesController(DegreePlannerContext context) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CoursesController : ControllerBase
+    [HttpGet]
+    public async Task<ActionResult<Response<List<Course>>>> GetAllCourses()
     {
-        private readonly DegreePlannerContext _context;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        // var courses = await context.Courses.Where(c => c.UserId == userId).ToListAsync();
 
-        public CoursesController(DegreePlannerContext context)
+        return Ok(new Response<List<Course>>([]));
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<Response<Course>>> GetCourse(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var course = await context.Courses.Where(c => c.Id == id && c.UserId == userId).FirstAsync();
+
+        return Ok(new Response<Course>(course));
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Response<Course>>> CreateCourse([FromBody] CreateCourseDto course)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null) return Unauthorized();
+
+        var newCourse = new Course
         {
-            _context = context;
-        }
+            Name = course.Name,
+            UserId = userId,
+            Code = course.Code,
+            Credits = course.Credits,
+            PassingGrade = course.PassingGrade,
+            Status = course.Status
+        };
 
-        // GET: api/Courses
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
+        context.Add(newCourse);
+
+        await context.SaveChangesAsync();
+
+        return Ok(new Response<Course>(newCourse));
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult<Response<Course>>> DeleteCourse(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var course = await context.Courses.Where(c => c.Id == id && c.UserId == userId).FirstAsync();
+
+        context.Remove(course);
+
+        await context.SaveChangesAsync();
+
+        return Ok(new Response<Course>(course));
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<Response<Course>>> UpdateCourse(int id, [FromBody] UpdateCourseDto course)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var courseToUpdate = await context.Courses.Where(c => c.Id == id && c.UserId == userId).FirstAsync();
+
+        courseToUpdate.Name = course.Name ?? courseToUpdate.Name;
+        courseToUpdate.Code = course.Code ?? courseToUpdate.Code;
+        courseToUpdate.Credits = course.Credits ?? courseToUpdate.Credits;
+        courseToUpdate.PassingGrade = course.PassingGrade ?? courseToUpdate.PassingGrade;
+        courseToUpdate.Status = course.Status ?? courseToUpdate.Status;
+
+        await context.SaveChangesAsync();
+
+        return Ok(new Response<Course>(courseToUpdate));
+    }
+
+    [HttpGet("{id:int}/prerequisites")]
+    public async Task<ActionResult<Response<List<Course>>>> GetPrerequisites(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var prerequisiteCourses = await context.Prerequisites
+            .Where(p => p.UserId == userId && p.CourseId == id)
+            .Select(p => p.PrerequisiteCourse)
+            .ToListAsync();
+
+        return Ok(new Response<List<Course>>(prerequisiteCourses));
+    }
+
+    [HttpPost("{id:int}/prerequisites")]
+    public async Task<ActionResult<Response<Course>>> AddPrerequisite(int id,
+        [FromBody] CreatePrerequisiteDto prerequisite)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null) return Unauthorized();
+
+        var existingPrerequisite = await context.Prerequisites
+            .Where(p => p.UserId == userId && p.CourseId == id &&
+                        p.PrerequisiteCourseId == prerequisite.PrerequisiteCourseId)
+            .FirstOrDefaultAsync();
+
+        if (existingPrerequisite != null) return BadRequest("Prerequisite already exists.");
+
+        var course = await context.Courses
+            .Where(c => c.Id == id && c.UserId == userId)
+            .FirstAsync();
+        var prerequisiteCourse = await context.Courses
+            .Where(c => c.Id == prerequisite.PrerequisiteCourseId && c.UserId == userId)
+            .FirstAsync();
+
+        if (course == null || prerequisiteCourse == null) return NotFound();
+
+        var newPrerequisite = new Prerequisite
         {
-            return await _context.Course.ToListAsync();
-        }
+            CourseId = id,
+            PrerequisiteCourseId = prerequisite.PrerequisiteCourseId,
+            UserId = userId
+        };
 
-        // GET: api/Courses/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(string id)
-        {
-            var course = await _context.Course.FindAsync(id);
+        context.Add(newPrerequisite);
 
-            if (course == null)
-            {
-                return NotFound();
-            }
+        await context.SaveChangesAsync();
 
-            return course;
-        }
+        return Ok(new Response<Course>(course));
+    }
 
-        // PUT: api/Courses/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCourse(string id, Course course)
-        {
-            if (id != course.CourseNumber)
-            {
-                return BadRequest();
-            }
+    [HttpDelete("{id:int}/prerequisites/{prerequisiteCourseId:int}")]
+    public async Task<ActionResult<Response<Prerequisite>>> RemovePrerequisite(int id, int prerequisiteCourseId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var prerequisite = await context.Prerequisites
+            .Where(p => p.UserId == userId && p.CourseId == id && p.PrerequisiteCourseId == prerequisiteCourseId)
+            .Include(prerequisite => prerequisite.Course)
+            .FirstAsync();
 
-            _context.Entry(course).State = EntityState.Modified;
+        context.Remove(prerequisite);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CourseExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        await context.SaveChangesAsync();
 
-            return NoContent();
-        }
-
-        // POST: api/Courses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Course>> PostCourse(Course course)
-        {
-            _context.Course.Add(course);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (CourseExists(course.CourseNumber))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetCourse", new { id = course.CourseNumber }, course);
-        }
-
-        // DELETE: api/Courses/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCourse(string id)
-        {
-            var course = await _context.Course.FindAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            _context.Course.Remove(course);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool CourseExists(string id)
-        {
-            return _context.Course.Any(e => e.CourseNumber == id);
-        }
+        return Ok(new Response<Prerequisite>(prerequisite));
     }
 }
