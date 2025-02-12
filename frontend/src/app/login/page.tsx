@@ -9,7 +9,7 @@ import { type FC } from 'react';
 const LoginPage: FC = async () => {
   const cookieStore = await cookies();
 
-  if (cookieStore.has('accessToken')) redirect('/degrees');
+  if (cookieStore.has('accessToken')) redirect('/dashboard/degrees');
 
   return (
     <main

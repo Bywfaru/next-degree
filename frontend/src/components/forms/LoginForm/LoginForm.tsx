@@ -1,6 +1,6 @@
 'use client';
 
-import { loginUser } from '@/app/actions';
+import { loginUser } from '@/app/actions/users';
 import { Button, Input } from '@/components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';

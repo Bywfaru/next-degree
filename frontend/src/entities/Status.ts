@@ -1,0 +1,22 @@
+import { z } from 'zod';
+
+export const STATUS_MAP = {
+  '0': 'not-started',
+  '1': 'in-progress',
+  '2': 'completed',
+  '3': 'abandoned',
+} as const;
+
+export const STATUSES = [
+  STATUS_MAP['0'],
+  STATUS_MAP['1'],
+  STATUS_MAP['2'],
+  STATUS_MAP['3'],
+] as const;
+
+export const STATUS_SCHEMA = z.preprocess(
+  (value) => STATUS_MAP[`${value}` as keyof typeof STATUS_MAP],
+  z.enum(STATUSES),
+);
+
+export type Status = z.infer<typeof STATUS_SCHEMA>

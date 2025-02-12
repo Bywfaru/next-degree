@@ -39,7 +39,7 @@ const handleSuccessfulLogin = async (data: unknown) => {
     maxAge: parsedData.data.expiresIn,
   });
 
-  return redirect('/degrees');
+  return redirect('/dashboard/degrees');
 };
 
 const handleFailedLogin = (data: unknown): ActionResponse<never> => {
