@@ -2,9 +2,10 @@
 
 import { ActionResponse } from '@/types/actions';
 import { getBaseApiUrl, getZodErrorsString } from '@/utils';
-import { logError } from '@/utils/logError/logError';
+import { logError } from '@/utils/logError';
 import { badRequest, ok, unauthorized } from '@/utils/server/actionResponses';
 import { z } from 'zod';
+import { loginUser } from '../loginUser';
 
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/g;
@@ -22,9 +23,9 @@ const REGISTER_ERROR_RESPONSE_SCHEMA = z.object({
   errors: z.record(z.array(z.string())),
 });
 
-export type RegisterUserParams = z.infer<typeof REGISTER_USER_SCHEMA>;
+export type RegisterUserSchema = z.infer<typeof REGISTER_USER_SCHEMA>;
 
-const handleFailedRegistration = (data: unknown): ActionResponse<never> => {
+const handleRegisterFail = (data: unknown): ActionResponse<never> => {
   const parsedErrorData = REGISTER_ERROR_RESPONSE_SCHEMA.safeParse(data);
 
   if (!parsedErrorData.success)
@@ -38,8 +39,17 @@ const handleFailedRegistration = (data: unknown): ActionResponse<never> => {
   return badRequest(errorMessages.join(', '));
 };
 
+const handleRegisterSuccess = async ({
+  email,
+  password,
+}: RegisterUserSchema): Promise<ActionResponse<string>> => {
+  await loginUser({ email, password });
+
+  return ok(`User ${email} registered successfully`);
+};
+
 export const registerUser = async (
-  data: RegisterUserParams,
+  data: RegisterUserSchema,
 ): Promise<ActionResponse<string | null>> => {
   const parsedData = REGISTER_USER_SCHEMA.safeParse(data);
 
@@ -57,12 +67,11 @@ export const registerUser = async (
   })
     .then(async (res) => {
       if (res.status === 401) return unauthorized();
-      if (res.ok)
-        return ok(`User ${parsedData.data.email} registered successfully`);
+      if (res.ok) return await handleRegisterSuccess(parsedData.data);
 
       const errorData = await res.json();
 
-      return handleFailedRegistration(errorData);
+      return handleRegisterFail(errorData);
     })
     .catch((error) => {
       logError({

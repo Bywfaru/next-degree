@@ -37,7 +37,7 @@ export const LoginForm: FC = () => {
 
     const response = await loginUser({ email, password });
 
-    if (response.success) return router.push('/degrees');
+    if (response.success) return router.push('/dashboard/degrees');
 
     setFormError(response.error);
     setIsLoading(false);

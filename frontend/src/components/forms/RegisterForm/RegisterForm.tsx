@@ -52,7 +52,7 @@ export const RegisterForm: FC = () => {
 
     const response = await registerUser({ email, password });
 
-    if (response.success) return router.push('/degrees');
+    if (response.success) return router.push('/dashboard/degrees');
 
     setFormError(response.error);
     setIsLoading(false);

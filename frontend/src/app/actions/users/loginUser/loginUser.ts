@@ -27,7 +27,7 @@ const LOGIN_SUCCESS_RESPONSE_SCHEMA = z.object({
 
 export type LoginUserParams = z.infer<typeof LOGIN_USER_SCHEMA>;
 
-const handleSuccessfulLogin = async (data: unknown) => {
+const handleLoginSuccess = async (data: unknown) => {
   const parsedData = LOGIN_SUCCESS_RESPONSE_SCHEMA.safeParse(data);
 
   if (!parsedData.success)
@@ -42,7 +42,7 @@ const handleSuccessfulLogin = async (data: unknown) => {
   return redirect('/dashboard/degrees');
 };
 
-const handleFailedLogin = (data: unknown): ActionResponse<never> => {
+const handleLoginFail = (data: unknown): ActionResponse<never> => {
   const parsedErrorData = LOGIN_ERROR_RESPONSE_SCHEMA.safeParse(data);
 
   if (!parsedErrorData.success)
@@ -69,11 +69,11 @@ export const loginUser = async (data: LoginUserParams) => {
     body: JSON.stringify(parsedData.data),
   })
     .then(async (res) => {
-      if (res.ok) return handleSuccessfulLogin(await res.json());
+      if (res.ok) return handleLoginSuccess(await res.json());
 
       const errorData = await res.json();
 
-      return handleFailedLogin(errorData);
+      return handleLoginFail(errorData);
     })
     .catch((error) => {
       logError({
