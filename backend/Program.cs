@@ -4,11 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables();
+
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? 
+                       builder.Configuration.GetConnectionString("DefaultConnection");
+
 
 builder.Services.AddDbContext<DegreePlannerContext>(options =>
     options
-        .UseNpgsql(builder.Configuration.GetConnectionString("DegreePlannerContext") ??
-                   throw new InvalidOperationException("Connection string 'DegreePlannerContext' not found."))
+        .UseNpgsql(connectionString ??
+                   throw new InvalidOperationException("Connection string not found."))
         .UseSnakeCaseNamingConvention()
 );
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
