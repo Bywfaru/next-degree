@@ -24,8 +24,8 @@ public class AssignmentCategories(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<List<AssignmentCategory>>(assignmentCategories));
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<Response<AssignmentCategory>>> GetAssignmentCategory(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Response<AssignmentCategory>>> GetAssignmentCategory(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var assignmentCategory = await context.AssignmentCategories
@@ -58,8 +58,8 @@ public class AssignmentCategories(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<AssignmentCategory>(newAssignmentCategory));
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult<Response<AssignmentCategory>>> DeleteAssignmentCategory(int id)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<Response<AssignmentCategory>>> DeleteAssignmentCategory(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var assignmentCategory = await context.AssignmentCategories
@@ -73,8 +73,8 @@ public class AssignmentCategories(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<AssignmentCategory>(assignmentCategory));
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<Response<AssignmentCategory>>> UpdateAssignmentCategory(int id,
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Response<AssignmentCategory>>> UpdateAssignmentCategory(string id,
         [FromBody] UpdateAssignmentCategoryDto assignmentCategory)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

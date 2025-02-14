@@ -7,7 +7,7 @@ public abstract class BaseEntity : IAuditable
     /**
      * The unique identifier for the entity.
      */
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     /**
      * The date and time that the entity was created.

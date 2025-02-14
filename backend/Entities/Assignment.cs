@@ -8,14 +8,14 @@ public class Assignment : BaseEntity
     /**
      * The course that the assignment is associated with.
      */
-    public int CourseId { get; set; }
+    public required string CourseId { get; set; }
 
     public Course? Course { get; set; }
 
     /**
      * The assignment category that the assignment is associated with.
      */
-    public int AssignmentCategoryId { get; set; }
+    public required string AssignmentCategoryId { get; set; }
 
     public AssignmentCategory? AssignmentCategory { get; set; }
 
@@ -69,8 +69,8 @@ public class Assignment : BaseEntity
 
 public class CreateAssignmentDto
 {
-    public required int CourseId { get; set; }
-    public required int AssignmentCategoryId { get; set; }
+    public required string CourseId { get; set; }
+    public required string AssignmentCategoryId { get; set; }
     public required string Name { get; set; }
     public string Description { get; set; } = "";
     public double? GradeReceived { get; set; }
@@ -82,8 +82,8 @@ public class CreateAssignmentDto
 
 public class UpdateAssignmentDto
 {
-    public int? CourseId { get; set; }
-    public int? AssignmentCategoryId { get; set; }
+    public string? CourseId { get; set; }
+    public string? AssignmentCategoryId { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public double? GradeReceived { get; set; }

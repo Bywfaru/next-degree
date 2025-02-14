@@ -17,13 +17,13 @@ public class CoursesController(DegreePlannerContext context) : ControllerBase
     public async Task<ActionResult<Response<List<Course>>>> GetAllCourses()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // var courses = await context.Courses.Where(c => c.UserId == userId).ToListAsync();
+        var courses = await context.Courses.Where(c => c.UserId == userId).ToListAsync();
 
         return Ok(new Response<List<Course>>([]));
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<Response<Course>>> GetCourse(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Response<Course>>> GetCourse(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var course = await context.Courses.Where(c => c.Id == id && c.UserId == userId).FirstAsync();
@@ -55,8 +55,8 @@ public class CoursesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Course>(newCourse));
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult<Response<Course>>> DeleteCourse(int id)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<Response<Course>>> DeleteCourse(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var course = await context.Courses.Where(c => c.Id == id && c.UserId == userId).FirstAsync();
@@ -68,8 +68,8 @@ public class CoursesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Course>(course));
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<Response<Course>>> UpdateCourse(int id, [FromBody] UpdateCourseDto course)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Response<Course>>> UpdateCourse(string id, [FromBody] UpdateCourseDto course)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var courseToUpdate = await context.Courses.Where(c => c.Id == id && c.UserId == userId).FirstAsync();
@@ -85,20 +85,22 @@ public class CoursesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Course>(courseToUpdate));
     }
 
-    [HttpGet("{id:int}/prerequisites")]
-    public async Task<ActionResult<Response<List<Course>>>> GetPrerequisites(int id)
+    [HttpGet("{id}/prerequisites")]
+    public async Task<ActionResult<Response<List<Course>>>> GetPrerequisites(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var prerequisiteCourses = await context.Prerequisites
             .Where(p => p.UserId == userId && p.CourseId == id)
             .Select(p => p.PrerequisiteCourse)
             .ToListAsync();
-
-        return Ok(new Response<List<Course>>(prerequisiteCourses));
+        
+        prerequisiteCourses.RemoveAll(p => p == null);
+        
+        return Ok(new Response<List<Course>>(prerequisiteCourses!));
     }
 
-    [HttpPost("{id:int}/prerequisites")]
-    public async Task<ActionResult<Response<Course>>> AddPrerequisite(int id,
+    [HttpPost("{id}/prerequisites")]
+    public async Task<ActionResult<Response<Course>>> AddPrerequisite(string id,
         [FromBody] CreatePrerequisiteDto prerequisite)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -135,8 +137,8 @@ public class CoursesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Course>(course));
     }
 
-    [HttpDelete("{id:int}/prerequisites/{prerequisiteCourseId:int}")]
-    public async Task<ActionResult<Response<Prerequisite>>> RemovePrerequisite(int id, int prerequisiteCourseId)
+    [HttpDelete("{id}/prerequisites/{prerequisiteCourseId}")]
+    public async Task<ActionResult<Response<Prerequisite>>> RemovePrerequisite(string id, string prerequisiteCourseId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var prerequisite = await context.Prerequisites

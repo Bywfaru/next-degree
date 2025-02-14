@@ -14,7 +14,7 @@ public class AssignmentCategory : BaseEntity
     /**
      * The course that the assignment category is associated with.
      */
-    public required int CourseId { get; set; }
+    public required string CourseId { get; set; }
 
     [JsonIgnore] public Course? Course { get; set; }
 
@@ -45,7 +45,7 @@ public class CreateAssignmentCategoryDto
     /**
      * The course that the assignment category is associated with.
      */
-    public required int CourseId { get; set; }
+    public required string CourseId { get; set; }
 
     /**
      * The weight of the assignment category.
@@ -63,7 +63,7 @@ public class UpdateAssignmentCategoryDto
     /**
      * The course that the assignment category is associated with.
      */
-    public int? CourseId { get; set; }
+    public string? CourseId { get; set; }
 
     /**
      * The weight of the assignment category.

@@ -8,14 +8,14 @@ public class DegreeCourse : BaseEntity
     /**
      * The degree associated with the course.
      */
-    public required int DegreeId { get; set; }
+    public required string DegreeId { get; set; }
 
     [JsonIgnore] public Degree? Degree { get; set; }
 
     /**
      * The course associated with the degree.
      */
-    public required int CourseId { get; set; }
+    public required string CourseId { get; set; }
 
     [JsonIgnore] public Course? Course { get; set; }
 
@@ -33,10 +33,10 @@ public class CreateDegreeCourseDto
     /**
      * The degree associated with the course.
      */
-    public required int DegreeId { get; set; }
+    public required string DegreeId { get; set; }
 
     /**
      * The course associated with the degree.
      */
-    public required int CourseId { get; set; }
+    public required string CourseId { get; set; }
 }

@@ -25,7 +25,7 @@ public class Assignments(DegreePlannerContext context) : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Response<Assignment>>> GetAssignment(int id)
+    public async Task<ActionResult<Response<Assignment>>> GetAssignment(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var assignment = await context.Assignments
@@ -70,7 +70,7 @@ public class Assignments(DegreePlannerContext context) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult<Response<Assignment>>> DeleteAssignment(int id)
+    public async Task<ActionResult<Response<Assignment>>> DeleteAssignment(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var assignment = await context.Assignments
@@ -85,7 +85,7 @@ public class Assignments(DegreePlannerContext context) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<Response<Assignment>>> UpdateAssignment(int id,
+    public async Task<ActionResult<Response<Assignment>>> UpdateAssignment(string id,
         [FromBody] UpdateAssignmentDto assignment)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

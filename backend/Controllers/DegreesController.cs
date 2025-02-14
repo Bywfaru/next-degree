@@ -44,8 +44,8 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<List<DegreeResponseDto>>(degreeResponses));
     }
 
-    [HttpGet("{degreeId:int}")]
-    public async Task<ActionResult<Response<DegreeResponseDto>>> GetDegree(int degreeId)
+    [HttpGet("{degreeId}")]
+    public async Task<ActionResult<Response<DegreeResponseDto>>> GetDegree(string degreeId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -97,8 +97,8 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Degree>(newDegree));
     }
 
-    [HttpDelete("{degreeId:int}")]
-    public async Task<ActionResult<Response<Degree>>> DeleteDegree(int degreeId)
+    [HttpDelete("{degreeId}")]
+    public async Task<ActionResult<Response<Degree>>> DeleteDegree(string degreeId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var degree = await context.Degrees.Where(d => d.Id == degreeId && d.UserId == userId).FirstAsync();
@@ -110,8 +110,8 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Degree>(degree));
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<Response<Degree>>> UpdateDegree(int id,
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Response<Degree>>> UpdateDegree(string id,
         [FromBody] UpdateDegreeRequestDto updateDegreeRequest)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -126,8 +126,8 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Degree>(degreeToReplace));
     }
 
-    [HttpPost("{id:int}/courses")]
-    public async Task<ActionResult<Response<DegreeCourse>>> AddCourseToDegree(int id,
+    [HttpPost("{id}/courses")]
+    public async Task<ActionResult<Response<DegreeCourse>>> AddCourseToDegree(string id,
         [FromBody] CreateDegreeCourseDto createDegreeCourseRequest)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -157,8 +157,8 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<DegreeCourse>(newDegreeCourse));
     }
 
-    [HttpDelete("{degreeId:int}/courses/{courseId:int}")]
-    public async Task<ActionResult<Response<DegreeCourse>>> RemoveCourseFromDegree(int degreeId, int courseId)
+    [HttpDelete("{degreeId}/courses/{courseId}")]
+    public async Task<ActionResult<Response<DegreeCourse>>> RemoveCourseFromDegree(string degreeId, string courseId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

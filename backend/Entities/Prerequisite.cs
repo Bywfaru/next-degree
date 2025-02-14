@@ -8,14 +8,14 @@ public class Prerequisite : BaseEntity
     /**
      * The course that the prerequisite is associated with.
      */
-    public int CourseId { get; set; }
+    public string CourseId { get; set; }
 
     public Course? Course { get; set; }
 
     /**
      * The course that is required to be taken before the course.
      */
-    public int PrerequisiteCourseId { get; set; }
+    public string PrerequisiteCourseId { get; set; }
 
     public Course? PrerequisiteCourse { get; set; }
 
@@ -44,12 +44,12 @@ public class CreatePrerequisiteDto
     /**
      * The course that the prerequisite is associated with.
      */
-    public required int CourseId { get; set; }
+    public required string CourseId { get; set; }
 
     /**
      * The course that is required to be taken before the course.
      */
-    public required int PrerequisiteCourseId { get; set; }
+    public required string PrerequisiteCourseId { get; set; }
 
     /**
      * Whether the prerequisite is a corequisite.
@@ -67,12 +67,12 @@ public class UpdatePrerequisiteDto
     /**
      * The course that the prerequisite is associated with.
      */
-    public int? CourseId { get; set; }
+    public string? CourseId { get; set; }
 
     /**
      * The course that is required to be taken before the course.
      */
-    public int? PrerequisiteCourseId { get; set; }
+    public string? PrerequisiteCourseId { get; set; }
 
     /**
      * Whether the prerequisite is a corequisite.
