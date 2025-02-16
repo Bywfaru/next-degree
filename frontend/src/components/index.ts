@@ -1,4 +1,5 @@
-export * from './Input';
+export * from './AddNewDegreeDashboardItem';
 export * from './Button';
 export * from './DegreeDashboardItem';
-export * from './AddNewDegreeDashboardItem';
+export * from './Input';
+export * from './Select';

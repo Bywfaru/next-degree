@@ -43,7 +43,7 @@ const RegisterPage: FC = async () => {
             'lg:gap-5',
           ])}
         >
-          <h2
+          <h1
             className={clsx([
               'font-bold',
               'text-4xl',
@@ -52,7 +52,7 @@ const RegisterPage: FC = async () => {
             ])}
           >
             Register
-          </h2>
+          </h1>
 
           <p>
             Create an account to track your degree progress, view your course

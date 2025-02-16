@@ -1,9 +1,7 @@
 'use server';
 
 import { getAllDegrees } from '@/app/actions/degrees';
-import {
-  AddNewDegreeDashboardItem,
-} from '@/components/AddNewDegreeDashboardItem';
+import { AddNewDegreeDashboardItem } from '@/components/AddNewDegreeDashboardItem';
 import { DegreeDashboardItem } from '@/components/DegreeDashboardItem';
 import clsx from 'clsx';
 import { type FC } from 'react';
@@ -27,7 +25,8 @@ const DegreesPage: FC = async () => {
       ])}
     >
       {degrees.map((degree) => (
-        <DegreeDashboardItem key={degree.id}
+        <DegreeDashboardItem
+          key={degree.id}
           name={degree.name}
           status={degree.status}
           completedCredits={degree.completedCredits}
@@ -36,7 +35,7 @@ const DegreesPage: FC = async () => {
         />
       ))}
 
-      <AddNewDegreeDashboardItem />
+      <AddNewDegreeDashboardItem type="link" href={`${DEGREES_BASE_URL}/new`} />
     </main>
   );
 };

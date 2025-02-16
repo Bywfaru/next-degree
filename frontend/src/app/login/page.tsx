@@ -43,7 +43,7 @@ const LoginPage: FC = async () => {
             'lg:gap-5',
           ])}
         >
-          <h2
+          <h1
             className={clsx([
               'font-bold',
               'text-4xl',
@@ -52,7 +52,7 @@ const LoginPage: FC = async () => {
             ])}
           >
             Login
-          </h2>
+          </h1>
 
           <p>
             Login to view your degree progress, course grades, and assignment

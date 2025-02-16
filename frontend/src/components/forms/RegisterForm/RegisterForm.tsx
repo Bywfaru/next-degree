@@ -49,6 +49,7 @@ export const RegisterForm: FC = () => {
     password,
   }) => {
     setIsLoading(true);
+    setFormError(null);
 
     const response = await registerUser({ email, password });
 

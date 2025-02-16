@@ -34,6 +34,7 @@ export const LoginForm: FC = () => {
     password,
   }) => {
     setIsLoading(true);
+    setFormError(null);
 
     const response = await loginUser({ email, password });
 

@@ -19,4 +19,11 @@ export const STATUS_SCHEMA = z.preprocess(
   z.enum(STATUSES),
 );
 
-export type Status = z.infer<typeof STATUS_SCHEMA>
+export type Status = z.infer<typeof STATUS_SCHEMA>;
+
+export const STATUS_TEXT_MAP: Record<Status, string> = {
+  'not-started': 'Not Started',
+  'in-progress': 'In Progress',
+  completed: 'Completed',
+  abandoned: 'Abandoned',
+};
