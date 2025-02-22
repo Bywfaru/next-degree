@@ -1,9 +1,7 @@
-import { z, ZodSchema } from 'zod';
+import { z } from 'zod';
 
-export const BaseEntity = z.object({
+export const BASE_ENTITY_SCHEMA = z.object({
   id: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
-
-export const baseEntity = (schema: ZodSchema) => BaseEntity.and(schema);

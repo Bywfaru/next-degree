@@ -14,10 +14,7 @@ export const STATUSES = [
   STATUS_MAP['3'],
 ] as const;
 
-export const STATUS_SCHEMA = z.preprocess(
-  (value) => STATUS_MAP[`${value}` as keyof typeof STATUS_MAP],
-  z.enum(STATUSES),
-);
+export const STATUS_SCHEMA = z.enum(STATUSES);
 
 export type Status = z.infer<typeof STATUS_SCHEMA>;
 

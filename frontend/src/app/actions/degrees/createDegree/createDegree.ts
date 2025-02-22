@@ -13,12 +13,7 @@ const CREATE_DEGREE_SUCCESS_RESPONSE_SCHEMA = z.object({
 
 const CREATE_DEGREE_SCHEMA = z.object({
   name: z.string().nonempty(),
-  status: z
-    .preprocess(
-      (value) => STATUSES.findIndex((status) => status === value),
-      z.number().int().optional(),
-    )
-    .optional(),
+  status: z.enum(STATUSES).optional(),
 });
 
 type CreateDegreeSchema = z.infer<typeof CREATE_DEGREE_SCHEMA>;
@@ -35,13 +30,21 @@ export const createDegree = async (data: CreateDegreeSchema) => {
     return badRequest(getZodErrorsString(parsedData.error));
 
   const endpoint = `${getBaseApiUrl()}/degrees`;
+  const { name, status } = parsedData.data;
+  const statusEnumValue = status
+    ? STATUSES.indexOf(status)
+    : STATUSES.indexOf('not-started');
 
   return await fetch(endpoint, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      name,
+      status: statusEnumValue,
+    }),
   })
     .then(async (res) => {
       if (res.status === 401) return unauthorized();

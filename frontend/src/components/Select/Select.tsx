@@ -33,7 +33,14 @@ export const Select: FC<SelectProps> = ({
   const requiredToUse = !!(register?.required ?? required);
 
   return (
-    <label className={clsx(['flex', 'flex-col', 'w-full', 'gap-1'])}>
+    <label className={clsx([
+      'flex',
+      'flex-col',
+      'w-full',
+      'gap-1',
+      'cursor-pointer',
+    ])}
+    >
       {!!label && (
         <span>
           {label}

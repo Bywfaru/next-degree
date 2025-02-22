@@ -1,0 +1,1 @@
+export const getBearerTokenAuthString = (token: string): string => `Bearer ${token}`;

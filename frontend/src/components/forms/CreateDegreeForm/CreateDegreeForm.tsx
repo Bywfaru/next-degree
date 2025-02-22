@@ -1,10 +1,11 @@
 'use client';
 
-import { createDegree } from '@/app/actions/degrees/createDegree';
+import { createDegree } from '@/app/actions/degrees';
 import { Button, Input, Select } from '@/components';
 import { STATUS_MAP, STATUS_SCHEMA, STATUS_TEXT_MAP } from '@/entities';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
+import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -23,11 +24,8 @@ export const CreateDegreeForm: FC = () => {
     formState: { errors },
   } = useForm<CreateDegreeSchema>({
     resolver: zodResolver(CREATE_DEGREE_SCHEMA),
-    defaultValues: {
-      name: '',
-      status: STATUS_MAP[0],
-    },
   });
+  const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,7 +58,12 @@ export const CreateDegreeForm: FC = () => {
         required
       />
 
-      <Select register={register('status')} label="Status" fullWidth required>
+      <Select register={register('status')}
+        label="Status"
+        errors={errors}
+        fullWidth
+        required
+      >
         {Object.values(STATUS_MAP).map((value) => {
           const text = STATUS_TEXT_MAP[value];
 

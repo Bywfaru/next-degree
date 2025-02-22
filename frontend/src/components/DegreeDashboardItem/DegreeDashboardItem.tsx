@@ -2,20 +2,27 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import type { FC } from 'react';
 
+const Status = {
+  NOT_STARTED: 0,
+  IN_PROGRESS: 1,
+  COMPLETED: 2,
+  ABANDONED: 3,
+};
+
+const STATUS_TEXT: Record<typeof Status[keyof typeof Status], string> = {
+  [Status.NOT_STARTED]: 'Not Started',
+  [Status.IN_PROGRESS]: 'In Progress',
+  [Status.COMPLETED]: 'Completed',
+  [Status.ABANDONED]: 'Abandoned',
+};
+
 export type DegreeDashboardItemProps = {
   name: string;
-  status: 'not-started' | 'in-progress' | 'completed' | 'abandoned';
+  status: number;
   completedCredits: number;
   totalCredits: number;
   href?: string;
 }
-
-const STATUS_TEXT: Record<DegreeDashboardItemProps['status'], string> = {
-  'not-started': 'Not Started',
-  'in-progress': 'In Progress',
-  'completed': 'Completed',
-  'abandoned': 'Abandoned',
-};
 
 export const DegreeDashboardItem: FC<DegreeDashboardItemProps> = ({
   completedCredits,
@@ -26,7 +33,7 @@ export const DegreeDashboardItem: FC<DegreeDashboardItemProps> = ({
 }) => {
   const statusText = STATUS_TEXT[status];
   const percentageCompleted = (completedCredits / totalCredits);
-  const isNotStartedOrAbandoned = status === 'abandoned' || status === 'not-started';
+  const isNotStartedOrAbandoned = status === Status.NOT_STARTED || status === Status.ABANDONED;
 
   return <Link href={href}
     className={clsx([
@@ -56,10 +63,10 @@ export const DegreeDashboardItem: FC<DegreeDashboardItemProps> = ({
     >{name}</p>
     <p className={clsx([
       {
-        'text-text-primary/50': status === 'not-started',
-        'text-grade-fair': status === 'in-progress',
-        'text-grade-good': status === 'completed',
-        'text-grade-poor': status === 'abandoned',
+        'text-text-primary/50': status === Status.NOT_STARTED,
+        'text-grade-fair': status === Status.IN_PROGRESS,
+        'text-grade-good': status === Status.COMPLETED,
+        'text-grade-poor': status === Status.ABANDONED,
       },
     ])}
     >{statusText}</p>
