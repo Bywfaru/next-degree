@@ -74,7 +74,7 @@ export const DegreeDashboardNavbar: FC<DegreeDashboardNavbarProps> = ({
         ))}
       </DegreeDashboardNavbarSelect>
 
-      <Menu size={24} />
+      <Menu size={24} className={clsx(['text-text-primary'])} />
     </div>
 
     <ul className={clsx(['flex', 'list-none', 'm-0', 'p-0', 'mb-[-1px]'])}>
@@ -85,11 +85,14 @@ export const DegreeDashboardNavbar: FC<DegreeDashboardNavbarProps> = ({
           <Link key={link.pathname}
             href={`${baseUrl}${link.pathname}`}
             className={clsx([
-              isActive && ['border-b', 'border-primary', 'text-primary'],
-              !isActive && ['text-primary/50'],
+              'border-b',
               'hover:text-primary',
+              'hover:border-primary',
               'py-2',
               'px-2.5',
+              'transition-colors',
+              isActive && ['border-primary', 'text-primary'],
+              !isActive && ['border-transparent', 'text-primary/30'],
             ])}
           >
             {link.name}

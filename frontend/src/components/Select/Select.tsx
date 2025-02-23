@@ -1,3 +1,5 @@
+'use client';
+
 import { ErrorMessage } from '@hookform/error-message';
 import clsx from 'clsx';
 import type { DetailedHTMLProps, FC, SelectHTMLAttributes } from 'react';

@@ -17,6 +17,6 @@ export const DashboardNavbar: FC = () => {
   >
     <h1>Dashboard</h1>
 
-    <Menu size={24} />
+    <Menu size={24} className={clsx(['text-text-primary'])} />
   </nav>;
 };

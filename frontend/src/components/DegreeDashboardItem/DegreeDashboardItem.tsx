@@ -1,15 +1,17 @@
+'use client';
+
 import clsx from 'clsx';
 import Link from 'next/link';
 import type { FC } from 'react';
 
-const Status = {
+export const Status = {
   NOT_STARTED: 0,
   IN_PROGRESS: 1,
   COMPLETED: 2,
   ABANDONED: 3,
 };
 
-const STATUS_TEXT: Record<typeof Status[keyof typeof Status], string> = {
+export const STATUS_TEXT: Record<typeof Status[keyof typeof Status], string> = {
   [Status.NOT_STARTED]: 'Not Started',
   [Status.IN_PROGRESS]: 'In Progress',
   [Status.COMPLETED]: 'Completed',
@@ -32,7 +34,7 @@ export const DegreeDashboardItem: FC<DegreeDashboardItemProps> = ({
   href = '#',
 }) => {
   const statusText = STATUS_TEXT[status];
-  const percentageCompleted = (completedCredits / totalCredits);
+  const percentageCompleted = completedCredits / totalCredits;
   const isNotStartedOrAbandoned = status === Status.NOT_STARTED || status === Status.ABANDONED;
 
   return <Link href={href}

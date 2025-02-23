@@ -1,3 +1,5 @@
+'use client';
+
 import clsx from 'clsx';
 import { Loader } from 'lucide-react';
 import type { ButtonHTMLAttributes, DetailedHTMLProps, FC } from 'react';

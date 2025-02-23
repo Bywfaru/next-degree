@@ -1,3 +1,5 @@
+'use client';
+
 import clsx from 'clsx';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -5,13 +7,13 @@ import type { FC } from 'react';
 
 export type AddNewDegreeDashboardItemProps =
   | {
-      type: 'button';
-      onClick?: () => void;
-    }
+  type: 'button';
+  onClick?: () => void;
+}
   | {
-      type: 'link';
-      href: string;
-    };
+  type: 'link';
+  href: string;
+};
 
 const AddNewDegreeDashboardItemChildren: FC = () => {
   return (
