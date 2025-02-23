@@ -51,6 +51,9 @@ const handleRegisterSuccess = async ({
 export const registerUser = async (
   data: RegisterUserSchema,
 ): Promise<ActionResponse<string | null>> => {
+  if (process.env.ENABLE_USER_REGISTRATION !== '1')
+    return badRequest('User registration is disabled');
+
   const parsedData = REGISTER_USER_SCHEMA.safeParse(data);
 
   if (!parsedData.success)
