@@ -21,25 +21,17 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         if (userId == null) return Unauthorized();
 
         var degrees = await context.Degrees.Where(d => d.UserId == userId).ToListAsync();
-        var degreeResponses = degrees.Select(d => new DegreeResponseDto
-        {
-            UserId = userId,
-            Id = d.Id,
-            Name = d.Name,
-            Status = d.Status,
-            CompletedCredits = d.DegreeCourses.Sum(dc =>
+        var degreeResponses = degrees
+            .Select(d => new DegreeResponseDto
             {
-                if (dc.Course is not { Status: Status.Completed }) return 0;
-
-                return dc.Course.Credits;
-            }),
-            TotalCredits = d.DegreeCourses.Sum(dc =>
-            {
-                if (dc.Course == null) return 0;
-
-                return dc.Course.Credits;
+                UserId = userId,
+                Id = d.Id,
+                Name = d.Name,
+                Status = d.Status,
+                CompletedCredits = d.Courses.Sum(c => c.Status == Status.Completed ? c.Credits : 0),
+                TotalCredits = d.Courses.Sum(c => c.Credits)
             })
-        }).ToList();
+            .ToList();
 
         return Ok(new Response<List<DegreeResponseDto>>(degreeResponses));
     }
@@ -58,26 +50,16 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
             Id = degree.Id,
             Name = degree.Name,
             Status = degree.Status,
-            CompletedCredits = degree.DegreeCourses.Sum(dc =>
-            {
-                if (dc.Course is not { Status: Status.Completed }) return 0;
-
-                return dc.Course.Credits;
-            }),
-            TotalCredits = degree.DegreeCourses.Sum(dc =>
-            {
-                if (dc.Course == null) return 0;
-
-                return dc.Course.Credits;
-            })
+            CompletedCredits = degree.Courses.Sum(c => c.Status == Status.Completed ? c.Credits : 0),
+            TotalCredits = degree.Courses.Sum(c => c.Credits)
         };
 
         return Ok(new Response<DegreeResponseDto>(degreeResponse));
     }
 
     [HttpPost]
-    public async Task<ActionResult<Response<Degree>>> CreateDegree(
-        [FromBody] CreateDegreeRequestDto createDegreeRequest)
+    public async Task<ActionResult<Response<Degree>>> CreateDegree
+        ([FromBody] CreateDegreeRequestDto createDegreeRequest)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -110,13 +92,16 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Degree>(degree));
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<Response<Degree>>> UpdateDegree(string id,
-        [FromBody] UpdateDegreeRequestDto updateDegreeRequest)
+    [HttpPut("{degreeId}")]
+    public async Task<ActionResult<Response<Degree>>> UpdateDegree
+    (
+        string degreeId,
+        [FromBody] UpdateDegreeRequestDto updateDegreeRequest
+    )
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var degreeToReplace =
-            await context.Degrees.Where(d => d.Id == id && d.UserId == userId).FirstAsync();
+            await context.Degrees.Where(d => d.Id == degreeId && d.UserId == userId).FirstAsync();
 
         degreeToReplace.Name = updateDegreeRequest.Name ?? degreeToReplace.Name;
         degreeToReplace.Status = updateDegreeRequest.Status ?? degreeToReplace.Status;
@@ -126,52 +111,88 @@ public class DegreesController(DegreePlannerContext context) : ControllerBase
         return Ok(new Response<Degree>(degreeToReplace));
     }
 
-    [HttpPost("{id}/courses")]
-    public async Task<ActionResult<Response<DegreeCourse>>> AddCourseToDegree(string id,
-        [FromBody] CreateDegreeCourseDto createDegreeCourseRequest)
+    [HttpGet("{degreeId}/courses")]
+    public async Task<ActionResult<Response<DegreeCoursesResponseDto>>> GetCoursesForDegree(string degreeId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userId == null) return Unauthorized();
 
-        var degree = await context.Degrees.Where(d => d.Id == id && d.UserId == userId).FirstAsync();
+        var degreeCourses = await context
+            .Courses
+            .Where(c => c.DegreeId == degreeId && c.UserId == userId)
+            .Include(c => c.Assignments)
+            .Include(c => c.AssignmentCategories)
+            .ToListAsync();
+
+        var courseResponses = degreeCourses
+            .Select(dc => new DegreeCoursesResponseDto
+            {
+                UserId = userId,
+                Id = dc.Id,
+                Name = dc.Name,
+                Code = dc.Code,
+                Credits = dc.Credits,
+                PassingGrade = dc.PassingGrade,
+                Status = dc.Status,
+                DegreeId = dc.DegreeId,
+                CurrentGrade =
+                    dc.Assignments.Sum(a => a.GradeReceived / a.GradePossible * a.AssignmentCategory.Weight) ?? 1
+            })
+            .ToList();
+
+        return Ok(new Response<List<DegreeCoursesResponseDto>>(courseResponses));
+    }
+
+    [HttpPost("{degreeId}/courses")]
+    public async Task<ActionResult<Response<Course>>> AddCourseToDegree
+    (
+        string degreeId,
+        [FromBody] CreateCourseDto createDegreeCourseRequest
+    )
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null) return Unauthorized();
+
+        var degree = await context.Degrees.Where(d => d.Id == degreeId && d.UserId == userId).FirstAsync();
 
         if (degree == null) return NotFound();
 
-        var course = await context.Courses.Where(c => c.Id == createDegreeCourseRequest.CourseId && c.UserId == userId)
-            .FirstAsync();
-
-        if (course == null) return NotFound();
-
-        var newDegreeCourse = new DegreeCourse
+        var newCourse = new Course
         {
-            DegreeId = id,
-            CourseId = createDegreeCourseRequest.CourseId,
-            UserId = userId
+            Code = createDegreeCourseRequest.Code,
+            Credits = createDegreeCourseRequest.Credits,
+            Name = createDegreeCourseRequest.Name,
+            DegreeId = degreeId,
+            UserId = userId,
+            PassingGrade = createDegreeCourseRequest.PassingGrade,
+            Status = createDegreeCourseRequest.Status
         };
 
-        context.DegreeCourses.Add(newDegreeCourse);
+        context.Courses.Add(newCourse);
 
         await context.SaveChangesAsync();
 
-        return Ok(new Response<DegreeCourse>(newDegreeCourse));
+        return Ok(new Response<Course>(newCourse));
     }
 
     [HttpDelete("{degreeId}/courses/{courseId}")]
-    public async Task<ActionResult<Response<DegreeCourse>>> RemoveCourseFromDegree(string degreeId, string courseId)
+    public async Task<ActionResult<Response<Course>>> DeleteCourseFromDegree(string degreeId, string courseId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userId == null) return Unauthorized();
 
-        var degreeCourse = await context.DegreeCourses
-            .Where(dc => dc.DegreeId == degreeId && dc.CourseId == courseId && dc.UserId == userId)
+        var degreeCourse = await context
+            .Courses
+            .Where(dc => dc.DegreeId == degreeId && dc.Id == courseId && dc.UserId == userId)
             .FirstAsync();
 
-        context.DegreeCourses.Remove(degreeCourse);
+        context.Courses.Remove(degreeCourse);
 
         await context.SaveChangesAsync();
 
-        return Ok(new Response<DegreeCourse>(degreeCourse));
+        return Ok(new Response<Course>(degreeCourse));
     }
 }

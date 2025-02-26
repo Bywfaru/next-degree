@@ -11,7 +11,6 @@ public class DegreePlannerContext(DbContextOptions<DegreePlannerContext> options
     public DbSet<AssignmentCategory> AssignmentCategories => Set<AssignmentCategory>();
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Degree> Degrees => Set<Degree>();
-    public DbSet<DegreeCourse> DegreeCourses => Set<DegreeCourse>();
     public DbSet<Prerequisite> Prerequisites => Set<Prerequisite>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

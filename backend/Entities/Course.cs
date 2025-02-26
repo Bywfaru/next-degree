@@ -36,18 +36,34 @@ public class Course : BaseEntity
     [MaxLength(36)]
     public required string UserId { get; set; }
 
-    [JsonIgnore] public ApplicationUser? User { get; set; }
+    [JsonIgnore]
+    public ApplicationUser? User { get; set; }
 
     /**
      * The progress status of the course.
      */
     public Status Status { get; set; } = Status.NotStarted;
 
-    [JsonIgnore] public ICollection<Assignment> Assignments { get; } = new List<Assignment>();
-    [JsonIgnore] public ICollection<AssignmentCategory> AssignmentCategories { get; } = new List<AssignmentCategory>();
-    [JsonIgnore] public ICollection<Prerequisite> CoursesRequiringThis { get; } = new List<Prerequisite>();
-    [JsonIgnore] public ICollection<Prerequisite> Prerequisites { get; } = new List<Prerequisite>();
-    [JsonIgnore] public ICollection<DegreeCourse> DegreeCourses { get; } = new List<DegreeCourse>();
+    /**
+     * The degree associated with the course.
+     */
+    [MaxLength(36)]
+    public required string DegreeId { get; set; }
+
+    [JsonIgnore]
+    public Degree? Degree { get; set; }
+
+    [JsonIgnore]
+    public ICollection<Assignment> Assignments { get; } = new List<Assignment>();
+
+    [JsonIgnore]
+    public ICollection<AssignmentCategory> AssignmentCategories { get; } = new List<AssignmentCategory>();
+
+    [JsonIgnore]
+    public ICollection<Prerequisite> CoursesRequiringThis { get; } = new List<Prerequisite>();
+
+    [JsonIgnore]
+    public ICollection<Prerequisite> Prerequisites { get; } = new List<Prerequisite>();
 }
 
 public class CreateCourseDto

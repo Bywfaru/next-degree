@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? 
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ??
                        builder.Configuration.GetConnectionString("DefaultConnection");
 
 
@@ -21,8 +21,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
-    .AddEntityFrameworkStores<DegreePlannerContext>();
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>().AddEntityFrameworkStores<DegreePlannerContext>();
 
 var app = builder.Build();
 

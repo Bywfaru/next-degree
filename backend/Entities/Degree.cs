@@ -12,7 +12,8 @@ public class Degree : BaseEntity
     [MaxLength(36)]
     public required string UserId { get; set; }
 
-    [JsonIgnore] public ApplicationUser? User { get; set; }
+    [JsonIgnore]
+    public ApplicationUser? User { get; set; }
 
     /**
      * The name of the degree.
@@ -25,7 +26,8 @@ public class Degree : BaseEntity
      */
     public Status Status { get; set; } = Status.NotStarted;
 
-    [JsonIgnore] public ICollection<DegreeCourse> DegreeCourses { get; } = new List<DegreeCourse>();
+    [JsonIgnore]
+    public ICollection<Course> Courses { get; } = new List<Course>();
 }
 
 public class CreateDegreeRequestDto
@@ -65,4 +67,12 @@ public class DegreeResponseDto : Degree
      * The total number of credits in the degree.
      */
     public double TotalCredits { get; set; }
+}
+
+public class DegreeCoursesResponseDto : Course
+{
+    /**
+     * The grade the user has in the course.
+     */
+    public double CurrentGrade { get; set; }
 }
